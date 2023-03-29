@@ -35,6 +35,8 @@ ENV FLINK_URL=https://www.apache.org/dyn/closer.cgi?action=download&filename=fli
 
 
 RUN mkdir -p ${HADOOP_HOME} && mkdir -p ${FLINK_HOME}
+RUN groupadd --system --gid=9999 flink && \
+    useradd --system --home-dir $FLINK_HOME --uid=9999 --gid=flink flink
 WORKDIR $FLINK_HOME
 
 #Download Hadoop
@@ -49,7 +51,8 @@ ENV PATH $HADOOP_HOME/bin/:$PATH
 RUN set -x \
     && curl -fSL $FLINK_URL -o /tmp/flink.tar.gz \
     && tar -zxvf /tmp/flink.tar.gz --directory ${FLINK_HOME} --strip-components 1 \
-    && rm /tmp/flink.tar.gz*
+    && rm /tmp/flink.tar.gz* \
+    && chown -R flink:flink .;
 
 # Download postgres connector jar 
 RUN curl https://jdbc.postgresql.org/download/postgresql-42.5.0.jar -o postgresql-42.5.0.jar \
